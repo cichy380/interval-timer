@@ -1,9 +1,13 @@
 <div class="flex flex-col h-full">
-  <header class="py-1 px-2 flex">
-    <div [routerLink]="'/timer'">interval timer</div>
-    <nav class="ml-auto">
-      <a [routerLink]="'/history'" class="inline-block">history</a>
-      <a [routerLink]="'/timer/config'" class="inline-block ml-2">configuration</a>
+  <header class="p-2 flex items-center justify-center">
+    <a [routerLink]="'/timer'" class="p-3.5 text-sm font-medium uppercase">interval timer</a>
+    <nav class="ml-auto leading-none">
+      <button [routerLink]="'/history'" mat-icon-button aria-label="History">
+        <mat-icon class="material-icons-outlined">calendar_today</mat-icon>
+      </button>
+      <button [routerLink]="'/timer/config'" mat-icon-button aria-label="Configuration">
+        <mat-icon class="material-icons-outlined">settings</mat-icon>
+      </button>
     </nav>
   </header>
 
