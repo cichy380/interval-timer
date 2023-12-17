@@ -5,3 +5,7 @@
 html, body {
   @apply h-full;
 }
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
