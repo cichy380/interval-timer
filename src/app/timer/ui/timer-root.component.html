@@ -1,1 +1,27 @@
-<p>timer-root works!</p>
+<div class="h-full p-4 flex flex-col">
+  <main class="grow flex items-center justify-center flex-col">
+    <section
+      class="flex items-center flex-col" [class.opacity-25]="(currentTimerStatus$ | async) === TimerStatus.NOT_LAUNCHED">
+      <div class="text-9xl font-light">{{ (currentIntervalIndex$ | async)! + 1 }}</div>
+      <div class="text-2xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
+      <div class="text-gray-400">{{ (summaryTime$ | async)! | formatTime }}</div>
+    </section>
+
+
+  </main>
+
+  <footer>
+    <button
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.NOT_LAUNCHED" (click)="onStartTimerClick()"
+      mat-raised-button
+      color="primary">
+      Start timer
+    </button>
+    <button
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING" (click)="onNextIntervalClick()"
+      mat-raised-button
+      color="primary">
+      Next interval
+    </button>
+  </footer>
+</div>
