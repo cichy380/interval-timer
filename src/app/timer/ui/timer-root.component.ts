@@ -1,6 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MatButtonModule } from '@angular/material/button'
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
 import { Observable } from 'rxjs';
 import { FormatTimePipe } from '../../shared/format-time.pipe'
 import { TimerStatus } from '../api/timer-status'
@@ -12,7 +14,7 @@ import { TimerService } from '../domain/timer.service';
 @Component({
   selector: 'app-timer',
   standalone: true,
-  imports: [CommonModule, FormatTimePipe, MatButtonModule],
+  imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule],
   providers: [{ provide: Timer, useClass: TimerService }],
   templateUrl: './timer-root.component.html',
   styleUrl: './timer-root.component.css',
@@ -25,6 +27,8 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   public summaryTime$!: Observable<TimerValue>
   public currentTimerStatus$!: Observable<TimerStatus>
 
+  public intervalCount!: number
+
   public TimerStatus = TimerStatus
 
   constructor(
@@ -33,15 +37,13 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.timer.setIntervalCount(5)
+    this.intervalCount = 5 // TODO get this data from Storage
+    this.timer.initializeTimer(this.intervalCount)
     this.timerValues$ = this.timer.selectAllValues()
     this.currentIntervalValue$ = this.timer.selectCurrentIntervalValue()
     this.currentIntervalIndex$ = this.timer.selectCurrentIntervalIndex()
     this.summaryTime$ = this.timer.selectSummaryTime()
     this.currentTimerStatus$ = this.timer.selectCurrentStatus()
-  }
-
-  ngOnDestroy() {
   }
 
   onStartTimerClick() {
@@ -52,10 +54,11 @@ export class TimerRootComponent implements OnInit, OnDestroy {
     this.timer.nextIteration()
   }
 
-  private stopTimer() {
-    // this.currentTimerStatus = TimerStatus.STOPPED
-    // this.currentIntervalIndex = 0
-    // this.clearInterval()
+  onStopTimerClick() {
+    this.timer.stopTimer()
+  }
+
+  ngOnDestroy() {
   }
 
 }

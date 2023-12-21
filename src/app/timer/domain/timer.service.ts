@@ -1,35 +1,30 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, combineLatest, map } from 'rxjs';
-import { Timer } from '../api/timer';
-import { TimerStatus } from '../api/timer-status';
-import { TimerValue } from '../api/timer-value';
+import { Injectable, OnDestroy } from '@angular/core'
+import { BehaviorSubject, combineLatest, map } from 'rxjs'
+import { Timer } from '../api/timer'
+import { TimerStatus } from '../api/timer-status'
+import { TimerValue } from '../api/timer-value'
 
 
 @Injectable()
 export class TimerService implements Timer, OnDestroy {
 
   private allValues$ = new BehaviorSubject<TimerValue[]>([])
-  private currentIntervalIndex$ = new BehaviorSubject<number>(0)
+  private currentIntervalIndex$ = new BehaviorSubject<number>(-1)
   private summaryTime$ = new BehaviorSubject<TimerValue>(0)
   private currentStatus$ = new BehaviorSubject<TimerStatus>(TimerStatus.NOT_LAUNCHED)
 
-  private nextIteration$ = new BehaviorSubject(true)
-
   private intervalCount!: number
   private intervalId!: ReturnType<typeof setInterval>
-
-  constructor() {
-  }
 
   selectAllValues() {
     return this.allValues$.asObservable()
   }
 
   selectCurrentIntervalValue() {
-    return combineLatest([this.allValues$, this.nextIteration$])
+    return combineLatest([this.allValues$, this.currentIntervalIndex$])
       .pipe(
         map(
-          ([allValues]) => allValues[this.currentIntervalIndex$.getValue()] || 0
+          ([allValues, currentIntervalIndex]) => allValues[currentIntervalIndex] || 0
         ),
       )
   }
@@ -46,37 +41,44 @@ export class TimerService implements Timer, OnDestroy {
     return this.currentStatus$.asObservable()
   }
 
+  initializeTimer(intervalCount: number) {
+    this.intervalCount = intervalCount
+    this.resetTimer()
+  }
+
   startTimer() {
     if (!this.intervalCount) {
       throw new Error('Missing intervalCount value. Use Timer.setIntervalCount() method.')
     }
 
     this.resetTimer()
+    this.currentIntervalIndex$.next(0)
     this.currentStatus$.next(TimerStatus.RUNNING)
-    this.intervalId = setInterval(() => this.increaseTimerByOneSecond(), 1000)
+    this.startInterval()
   }
 
   stopTimer() {
-    this.clearInterval()
+    this.currentStatus$.next(TimerStatus.STOPPED)
+    this.stopInterval()
+  }
+
+  nextIteration() {
+    let currentIntervalIndex = this.currentIntervalIndex$.getValue()
+    this.currentIntervalIndex$.next(currentIntervalIndex + 1)
   }
 
   private resetTimer() {
     this.allValues$.next(new Array(this.intervalCount).fill(0))
-    this.currentIntervalIndex$.next(0)
+    this.currentIntervalIndex$.next(-1)
     this.summaryTime$.next(0)
+    this.currentStatus$.next(TimerStatus.NOT_LAUNCHED)
   }
 
-  nextIteration() {
-    // TODO check if last iteration
-    this.currentIntervalIndex$.next(this.currentIntervalIndex$.getValue() + 1)
-    this.nextIteration$.next(true)
+  private startInterval() {
+    this.intervalId = setInterval(() => this.increaseTimerByOneSecond(), 1000)
   }
 
-  setIntervalCount(intervalCount: number) {
-    this.intervalCount = intervalCount;
-  }
-
-  private clearInterval() {
+  private stopInterval() {
     clearInterval(this.intervalId)
   }
 
@@ -93,7 +95,7 @@ export class TimerService implements Timer, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.clearInterval()
+    this.stopInterval()
   }
 
 }

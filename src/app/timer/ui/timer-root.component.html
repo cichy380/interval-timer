@@ -1,27 +1,61 @@
-<div class="h-full p-4 flex flex-col">
+<div class="h-full p-5 flex flex-col">
   <main class="grow flex items-center justify-center flex-col">
     <section
-      class="flex items-center flex-col" [class.opacity-25]="(currentTimerStatus$ | async) === TimerStatus.NOT_LAUNCHED">
+      class="grow flex items-center justify-center flex-col">
       <div class="text-9xl font-light">{{ (currentIntervalIndex$ | async)! + 1 }}</div>
-      <div class="text-2xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
-      <div class="text-gray-400">{{ (summaryTime$ | async)! | formatTime }}</div>
+      <div class="text-3xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
+      <div class="text-gray-400 font-light">{{ (summaryTime$ | async)! | formatTime }}</div>
     </section>
 
-
+    <section class="w-full">
+      <mat-list>
+        <ng-container *ngFor="let intervalItemTime of timerValues$ | async; index as idx">
+          <mat-list-item
+            class="rounded shadow-gray-300"
+            [class.shadow-md]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
+            [class.opacity-40]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! > idx"
+            [class.opacity-20]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! < idx">
+            <span class="flex text-xl">
+              <span class="font-light">{{ idx + 1 }}</span>
+              <span class="ml-auto flex items-center">
+                <mat-icon *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
+                          color="primary"
+                          class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
+                <span class="font-light">{{ intervalItemTime | formatTime }}</span>
+              </span>
+            </span>
+          </mat-list-item>
+        </ng-container>
+        <mat-list-item>
+          <span class="flex justify-end text-xl">
+              <span class="font-medium">{{ (summaryTime$ | async)! | formatTime }}</span>
+            </span>
+        </mat-list-item>
+      </mat-list>
+    </section>
   </main>
 
-  <footer>
+  <footer class="mt-5 flex justify-center">
     <button
-      *ngIf="(currentTimerStatus$ | async) === TimerStatus.NOT_LAUNCHED" (click)="onStartTimerClick()"
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.NOT_LAUNCHED || (currentTimerStatus$ | async) === TimerStatus.STOPPED"
+      (click)="onStartTimerClick()"
       mat-raised-button
       color="primary">
       Start timer
     </button>
     <button
-      *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING" (click)="onNextIntervalClick()"
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! < (intervalCount - 1)"
+      (click)="onNextIntervalClick()"
       mat-raised-button
       color="primary">
       Next interval
+    </button>
+    <button
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === (intervalCount - 1)"
+      (click)="onStopTimerClick()"
+      mat-raised-button
+      color="primary">
+      Stop interval
     </button>
   </footer>
 </div>

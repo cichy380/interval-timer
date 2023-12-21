@@ -21,5 +21,5 @@ export abstract class Timer {
 
   abstract nextIteration(): void
 
-  abstract setIntervalCount(intervalCount: number): void
+  abstract initializeTimer(intervalCount: number): void
 }
