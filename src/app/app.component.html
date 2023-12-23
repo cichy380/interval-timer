@@ -1,6 +1,8 @@
 <div class="flex flex-col h-full">
   <header class="p-2 flex items-center justify-center">
-    <a [routerLink]="'/timer'" class="p-3.5 text-sm font-medium uppercase">interval timer</a>
+    <button mat-button [routerLink]="'/timer'" color="primary">
+      <span class="uppercase tracking-normal">interval timer</span>
+    </button>
     <nav class="ml-auto leading-none">
       <button [routerLink]="'/history'" mat-icon-button aria-label="History">
         <mat-icon class="material-icons-outlined">calendar_today</mat-icon>
