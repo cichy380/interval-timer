@@ -1,0 +1,85 @@
+{
+  "configVersion": 1,
+  "timestamp": 1703353231548,
+  "index": "/interval-timer/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/interval-timer/chunk-AAKILZGX.js",
+        "/interval-timer/chunk-AELRYJ62.js",
+        "/interval-timer/chunk-EMNVYP3R.js",
+        "/interval-timer/chunk-EOIPRNMG.js",
+        "/interval-timer/favicon.ico",
+        "/interval-timer/index.html",
+        "/interval-timer/main-OW6OEPOW.js",
+        "/interval-timer/manifest.webmanifest",
+        "/interval-timer/polyfills-LZBJRJJE.js",
+        "/interval-timer/styles-646AQB52.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/interval-timer/assets/icons/android-72x72.png",
+        "/interval-timer/assets/icons/android-96x96.png",
+        "/interval-timer/assets/icons/android-ios-144x144.png",
+        "/interval-timer/assets/icons/android-ios-192x192.png",
+        "/interval-timer/assets/icons/android-ios-512x512.png",
+        "/interval-timer/assets/icons/ios-128x128.png",
+        "/interval-timer/assets/icons/ios-152x152.png"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/interval-timer/assets/icons/android-72x72.png": "b7b72e85b5d1fc54230795f12c5d39e1491656be",
+    "/interval-timer/assets/icons/android-96x96.png": "b8e7a6d3e7285b0032aa7e282bd9aadf2a50e7dc",
+    "/interval-timer/assets/icons/android-ios-144x144.png": "71f16158949ee61afd61bbea051a51cbbe414e47",
+    "/interval-timer/assets/icons/android-ios-192x192.png": "dbaa410380ca94a8fd8110c015cd35962950d0d0",
+    "/interval-timer/assets/icons/android-ios-512x512.png": "e443b224f9a79d1280859b1b45cca066f5ee056b",
+    "/interval-timer/assets/icons/ios-128x128.png": "715ff7a8abfdc844d8a6883b9518bc68acb647e2",
+    "/interval-timer/assets/icons/ios-152x152.png": "e423e9aeea473852e19bee1b27dd5c1d9090ec33",
+    "/interval-timer/chunk-AAKILZGX.js": "3745c0bb59f8f5ccaa52787127d411b4a040dabd",
+    "/interval-timer/chunk-AELRYJ62.js": "8b7dce625504333796069147d684109bf80f643b",
+    "/interval-timer/chunk-EMNVYP3R.js": "52dde0a152a93c0ffcb48ec3d26480342c04a334",
+    "/interval-timer/chunk-EOIPRNMG.js": "2250649d5bae504473dc461fdce4c4dc5a554a46",
+    "/interval-timer/favicon.ico": "b93e399d8d4d1a56a10c341360aaae5d88574979",
+    "/interval-timer/index.html": "6830dd9925079abc01a6a04f5c51eebdedd0ad26",
+    "/interval-timer/main-OW6OEPOW.js": "3e8cfbb3494666e4d2b86b7e7ea693811e10113f",
+    "/interval-timer/manifest.webmanifest": "794bbc3d19f53b0150e75773f90185913146d743",
+    "/interval-timer/polyfills-LZBJRJJE.js": "fda1c82c5c620f1fa442f687b3df45a037f6fcc9",
+    "/interval-timer/styles-646AQB52.css": "209afcde4301ff0b7222d5e80dac07d98ee95b81"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ],
+  "navigationRequestStrategy": "performance"
+}
