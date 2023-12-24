@@ -46,7 +46,7 @@ export class TimerRootComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.intervalCount = 5 // TODO get this data from Storage
-    this.breakLength = 8 // TODO get this data from Storage
+    this.breakLength = 60 // TODO get this data from Storage
     this.timer.initializeTimer(this.intervalCount)
     this.breakTime.initializeBreak(this.breakLength)
 

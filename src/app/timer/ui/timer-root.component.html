@@ -42,7 +42,7 @@
                 <mat-icon *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
                           color="primary"
                           class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
-                <span class="font-light">{{ intervalItemTime | formatTime }}</span>
+                <span>{{ intervalItemTime | formatTime }}</span>
               </span>
             </span>
           </mat-list-item>
