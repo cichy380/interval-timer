@@ -1,6 +1,21 @@
 <div class="h-full p-5 flex flex-col">
   <main class="grow flex items-center justify-center flex-col">
     <section
+      [class.invisible]="(currentTimerStatus$ | async) !== TimerStatus.BREAK"
+      class="w-full px-4 py-3 bg-gray-100 rounded-md">
+      <div class="flex items-center">
+        <span class="text-lg uppercase">Break</span>
+        <span class="ml-auto flex items-center">
+          <mat-icon
+            *ngIf="(currentTimerStatus$ | async) === TimerStatus.BREAK"
+            color="primary"
+            class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
+          <span class="text-2xl font-medium">{{ (currentBreakValue$ | async)! | formatTime }}</span>
+        </span>
+      </div>
+    </section>
+
+    <section
       class="grow flex items-center justify-center flex-col">
       <div class="text-9xl font-light">{{ (currentIntervalIndex$ | async)! + 1 }}</div>
       <div class="text-3xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
@@ -11,8 +26,8 @@
       <mat-list>
         <ng-container *ngFor="let intervalItemTime of timerValues$ | async; index as idx">
           <mat-list-item
-            class="rounded shadow-gray-300"
-            [class.shadow-md]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
+            class="!rounded-md"
+            [class.!bg-gray-100]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
             [class.opacity-40]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! > idx"
             [class.opacity-20]="(currentTimerStatus$ | async) === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! < idx">
             <span class="flex text-xl">
@@ -57,5 +72,29 @@
       color="primary">
       Stop interval
     </button>
+
+    <button
+      *ngIf="(currentTimerStatus$ | async) === TimerStatus.BREAK"
+      (click)="onSkipBreakClick()"
+      mat-raised-button
+      color="warn">
+      Skip break
+    </button>
+
+<!--    <button-->
+<!--      *ngIf="(currentTimerStatus$ | async) === TimerStatus.RUNNING"-->
+<!--      (click)="onPauseTimerClick()"-->
+<!--      mat-raised-button-->
+<!--      color="primary">-->
+<!--      Pause-->
+<!--    </button>-->
+
+<!--    <button-->
+<!--      *ngIf="(currentTimerStatus$ | async) === TimerStatus.BREAK"-->
+<!--      (click)="onContinueTimerClick()"-->
+<!--      mat-raised-button-->
+<!--      color="primary">-->
+<!--      Continue-->
+<!--    </button>-->
   </footer>
 </div>

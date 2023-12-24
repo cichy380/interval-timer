@@ -2,15 +2,15 @@ import { Injectable, OnDestroy } from '@angular/core'
 import { BehaviorSubject, combineLatest, map } from 'rxjs'
 import { Timer } from '../api/timer'
 import { TimerStatus } from '../api/timer-status'
-import { TimerValue } from '../api/timer-value'
+import { TimeValue } from '../api/time-value'
 
 
 @Injectable()
 export class TimerService implements Timer, OnDestroy {
 
-  private allValues$ = new BehaviorSubject<TimerValue[]>([])
+  private allValues$ = new BehaviorSubject<TimeValue[]>([])
   private currentIntervalIndex$ = new BehaviorSubject<number>(-1)
-  private summaryTime$ = new BehaviorSubject<TimerValue>(0)
+  private summaryTime$ = new BehaviorSubject<TimeValue>(0)
   private currentStatus$ = new BehaviorSubject<TimerStatus>(TimerStatus.NOT_LAUNCHED)
 
   private intervalCount!: number
@@ -62,9 +62,20 @@ export class TimerService implements Timer, OnDestroy {
     this.stopInterval()
   }
 
+  pauseTimer() {
+    this.currentStatus$.next(TimerStatus.BREAK)
+    this.stopInterval()
+  }
+
+  continueTimer() {
+    this.currentStatus$.next(TimerStatus.RUNNING)
+    this.startInterval()
+  }
+
   nextIteration() {
     let currentIntervalIndex = this.currentIntervalIndex$.getValue()
     this.currentIntervalIndex$.next(currentIntervalIndex + 1)
+    this.continueTimer()
   }
 
   private resetTimer() {
