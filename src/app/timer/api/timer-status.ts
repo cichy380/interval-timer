@@ -1,6 +1,6 @@
 export enum TimerStatus {
-  NOT_LAUNCHED,
-  RUNNING,
-  BREAK,
-  STOPPED
+  NOT_LAUNCHED= 'NOT_LAUNCHED',
+  RUNNING = 'RUNNING',
+  BREAK = 'BREAK',
+  STOPPED = 'STOPPED',
 }

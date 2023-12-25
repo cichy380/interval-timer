@@ -31,7 +31,7 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   public currentIntervalIndex$!: Observable<number>
   public summaryTime$!: Observable<TimeValue>
   public currentTimerStatus$!: Observable<TimerStatus>
-  public currentBreakValue$!: Observable<TimerStatus>
+  public currentBreakValue$!: Observable<TimeValue>
 
   public intervalCount!: number
   public breakLength!: number
