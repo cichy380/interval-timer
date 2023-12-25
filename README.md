@@ -1,4 +1,5 @@
-# Interval Timer
+
+[![interval-timer-github](https://github.com/cichy380/interval-timer/assets/5628124/dc617923-c030-41b8-ab5e-848fc1102829)](https://cichy380.github.io/interval-timer/timer)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.0.3.
 
