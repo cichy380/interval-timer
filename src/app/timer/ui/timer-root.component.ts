@@ -13,7 +13,6 @@ import { TimeValue } from '../api/time-value';
 import { TimerSound } from '../api/timer-sound';
 import { BreakTime } from '../api/break-time';
 import { Timer } from '../api/timer';
-import { SoundService } from '../../shared/sound.service';
 
 
 @Component({
@@ -21,7 +20,6 @@ import { SoundService } from '../../shared/sound.service';
   standalone: true,
   imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule],
   providers: [
-    SoundService,
     { provide: Timer, useClass: TimerService },
     { provide: BreakTime, useClass: BreakService },
     { provide: TimerSound, useClass: TimerSoundService },
