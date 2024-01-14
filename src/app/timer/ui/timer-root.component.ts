@@ -63,11 +63,12 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   }
 
   async onStartTimerClick() {
-    this.timer.startTimer()
     await this.timerSound.playBellDingSound()
+    this.timer.startTimer()
   }
 
   async onNextIntervalClick() {
+    await this.timerSound.playBellDingSound()
     this.timer.pauseTimer()
     this.breakTime.startBreak()
     await lastValueFrom(this.breakTime.selectBreakEnded().pipe(take(1)))
