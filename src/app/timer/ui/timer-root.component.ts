@@ -33,6 +33,7 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   public currentIntervalValue$!: Observable<TimeValue>
   public currentIntervalIndex$!: Observable<number>
   public summaryTime$!: Observable<TimeValue>
+  public averageTime$!: Observable<TimeValue>
   public currentTimerStatus$!: Observable<TimerStatus>
   public currentBreakValue$!: Observable<TimeValue>
 
@@ -58,6 +59,7 @@ export class TimerRootComponent implements OnInit, OnDestroy {
     this.currentIntervalValue$ = this.timer.selectCurrentIntervalValue()
     this.currentIntervalIndex$ = this.timer.selectCurrentIntervalIndex()
     this.summaryTime$ = this.timer.selectSummaryTime()
+    this.averageTime$ = this.timer.selectAverageTime()
     this.currentTimerStatus$ = this.timer.selectCurrentStatus()
     this.currentBreakValue$ = this.breakTime.selectValue()
   }

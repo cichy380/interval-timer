@@ -25,7 +25,10 @@
              class="text-9xl font-light">{{ (currentIntervalIndex$ | async)! + 1 }}</div>
       </div>
       <div class="text-3xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
-      <div class="text-gray-400 font-light">{{ (summaryTime$ | async)! | formatTime }}</div>
+      <div class="text-gray-400 flex items-center justify-center">
+        <mat-icon class="!w-6 !h-8 mr-1 text-2xl opacity-75 material-symbols-outlined">avg_time</mat-icon>
+        <span class="text-lg">{{ (averageTime$ | async)! | formatTime }}</span>
+      </div>
     </section>
 
     <section class="w-full">

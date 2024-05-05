@@ -13,6 +13,8 @@ export abstract class Timer {
 
   abstract selectSummaryTime(): Observable<TimeValue>
 
+  abstract selectAverageTime(): Observable<TimeValue>
+
   abstract selectCurrentStatus(): Observable<TimerStatus>
 
   abstract startTimer(): void

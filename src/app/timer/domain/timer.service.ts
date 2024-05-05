@@ -11,6 +11,7 @@ export class TimerService implements Timer, OnDestroy {
   private allValues$ = new BehaviorSubject<TimeValue[]>([])
   private currentIntervalIndex$ = new BehaviorSubject<number>(-1)
   private summaryTime$ = new BehaviorSubject<TimeValue>(0)
+  private averageTime$ = new BehaviorSubject<TimeValue>(0)
   private currentStatus$ = new BehaviorSubject<TimerStatus>(TimerStatus.NOT_LAUNCHED)
 
   private intervalCount!: number
@@ -35,6 +36,10 @@ export class TimerService implements Timer, OnDestroy {
 
   selectSummaryTime() {
     return this.summaryTime$.asObservable()
+  }
+
+  selectAverageTime() {
+    return this.averageTime$.asObservable()
   }
 
   selectCurrentStatus() {
@@ -82,6 +87,7 @@ export class TimerService implements Timer, OnDestroy {
     this.allValues$.next(new Array(this.intervalCount).fill(0))
     this.currentIntervalIndex$.next(-1)
     this.summaryTime$.next(0)
+    this.averageTime$.next(0)
     this.currentStatus$.next(TimerStatus.NOT_LAUNCHED)
   }
 
@@ -102,6 +108,9 @@ export class TimerService implements Timer, OnDestroy {
     this.allValues$.next(allValues)
     this.summaryTime$.next(
       allValues.reduce((partialSum, a) => partialSum + a, 0)
+    )
+    this.averageTime$.next(
+      Math.round(allValues.reduce((partialSum, a, idx) => idx < currentIntervalIndex ? partialSum + a : partialSum, 0) / currentIntervalIndex) || 0
     )
   }
 
