@@ -40,6 +40,8 @@ export class TimerRootComponent implements OnInit, OnDestroy {
   public intervalCount!: number
   public breakLength!: number
 
+  public isBreak = false
+
   public TimerStatus = TimerStatus
 
   constructor(
@@ -62,20 +64,26 @@ export class TimerRootComponent implements OnInit, OnDestroy {
     this.averageTime$ = this.timer.selectAverageTime()
     this.currentTimerStatus$ = this.timer.selectCurrentStatus()
     this.currentBreakValue$ = this.breakTime.selectValue()
+
+
+    this.timer.selectIntervals().subscribe(intervals => {
+      console.log(intervals)
+    })
   }
 
   async onStartTimerClick() {
     await this.timerSound.playBellDingSound()
-    this.timer.startTimer()
+    this.timer.startFirstInterval()
   }
 
   async onNextIntervalClick() {
     await this.timerSound.playBellDingSound()
-    this.timer.pauseTimer()
+    this.timer.stopCurrentInterval()
     this.breakTime.startBreak()
+    this.isBreak =
     await lastValueFrom(this.breakTime.selectBreakEnded().pipe(take(1)))
     await this.timerSound.playBellDingSound()
-    this.timer.nextIteration()
+    this.timer.startNextInterval()
   }
 
   onStopTimerClick() {

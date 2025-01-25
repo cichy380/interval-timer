@@ -1,9 +1,12 @@
 import { Observable } from 'rxjs';
 import { TimerStatus } from './timer-status';
 import { TimeValue } from './time-value';
+import { IntervalTime } from './interval-time';
 
 
 export abstract class Timer {
+
+  abstract selectIntervals(): Observable<IntervalTime[]>
 
   abstract selectAllValues(): Observable<TimeValue[]>
 
@@ -17,7 +20,11 @@ export abstract class Timer {
 
   abstract selectCurrentStatus(): Observable<TimerStatus>
 
-  abstract startTimer(): void
+  abstract startFirstInterval(): void
+
+  abstract stopCurrentInterval(): void
+
+  abstract startNextInterval(): void
 
   abstract stopTimer(): void
 

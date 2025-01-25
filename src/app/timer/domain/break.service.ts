@@ -13,8 +13,15 @@ export class BreakService implements BreakTime, OnDestroy {
   private breakLength!: TimeValue
   private intervalId!: ReturnType<typeof setInterval>
 
+  // TODO
+  private isBreakRunning$ = new BehaviorSubject<boolean>(false)
+
   selectValue(): Observable<TimeValue> {
     return this.value$.asObservable()
+  }
+
+  selectIsBreakRunning(): Observable<boolean> {
+    return this.isBreakRunning$.asObservable()
   }
 
   initializeBreak(breakLength: TimeValue) {
@@ -25,12 +32,14 @@ export class BreakService implements BreakTime, OnDestroy {
   startBreak() {
     this.setInitialValue()
     this.startInterval()
+    this.isBreakRunning$.next(true)
   }
 
   stopBreak() {
     this.stopInterval()
     this.breakEnded$.next()
     this.value$.next(0)
+    this.isBreakRunning$.next(false)
   }
 
   selectBreakEnded(): Observable<void> {

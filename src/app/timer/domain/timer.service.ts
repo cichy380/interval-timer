@@ -3,10 +3,14 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs'
 import { Timer } from '../api/timer'
 import { TimerStatus } from '../api/timer-status'
 import { TimeValue } from '../api/time-value'
+import { IntervalTime, IntervalTimeStatus } from '../api/interval-time';
 
 
 @Injectable()
 export class TimerService implements Timer, OnDestroy {
+
+  private intervalTimes$ = new BehaviorSubject<IntervalTime[]>([])
+  private nextIntervalIndex = 0
 
   private allValues$ = new BehaviorSubject<TimeValue[]>([])
   private currentIntervalIndex$ = new BehaviorSubject<number>(-1)
@@ -16,6 +20,10 @@ export class TimerService implements Timer, OnDestroy {
 
   private intervalCount!: number
   private intervalId!: ReturnType<typeof setInterval>
+
+  selectIntervals() {
+    return this.intervalTimes$.asObservable()
+  }
 
   selectAllValues() {
     return this.allValues$.asObservable()
@@ -51,15 +59,48 @@ export class TimerService implements Timer, OnDestroy {
     this.resetTimer()
   }
 
-  startTimer() {
+  startFirstInterval() {
     if (!this.intervalCount) {
-      throw new Error('Missing intervalCount value. Use Timer.setIntervalCount() method.')
+      throw new Error('Missing intervalCount value. Use Timer.initializeTimer() method.')
     }
 
-    this.resetTimer()
-    this.currentIntervalIndex$.next(0)
-    this.currentStatus$.next(TimerStatus.RUNNING)
-    this.startInterval()
+    // this.resetTimer()
+    // this.currentIntervalIndex$.next(0)
+
+    this.startIntervalTimer(0)
+    this.nextIntervalIndex = 1
+    // this.currentStatus$.next(TimerStatus.RUNNING)
+    // this.startInterval()
+  }
+
+  stopCurrentInterval() {
+    const intervalTimes = this.intervalTimes$.getValue()
+    const currentIntervalTimeIndex = intervalTimes.indexOf(
+      intervalTimes.find(intervalTime => intervalTime.status === IntervalTimeStatus.RUNNING) as IntervalTime
+    )
+    this.stopIntervalTimer(currentIntervalTimeIndex)
+    this.nextIntervalIndex++
+    // const currentIntervalTime = intervalTimes.find(intervalTime => intervalTime.status === IntervalTimeStatus.RUNNING) as IntervalTime;
+    // currentIntervalTime.datetimeEnd = Date.now()
+    // currentIntervalTime.status = IntervalTimeStatus.DONE
+  }
+
+  startNextInterval() {
+    this.startIntervalTimer(this.nextIntervalIndex)
+  }
+
+  private startIntervalTimer(index: number) {
+    const intervalTimes = this.intervalTimes$.getValue()
+    intervalTimes[index].datetimeStart = Date.now()
+    intervalTimes[index].status = IntervalTimeStatus.RUNNING
+    this.intervalTimes$.next(intervalTimes)
+  }
+
+  private stopIntervalTimer(index: number) {
+    const intervalTimes = this.intervalTimes$.getValue()
+    intervalTimes[index].datetimeEnd = Date.now()
+    intervalTimes[index].status = IntervalTimeStatus.DONE
+    this.intervalTimes$.next(intervalTimes)
   }
 
   stopTimer() {
@@ -84,10 +125,12 @@ export class TimerService implements Timer, OnDestroy {
   }
 
   private resetTimer() {
-    this.allValues$.next(new Array(this.intervalCount).fill(0))
-    this.currentIntervalIndex$.next(-1)
-    this.summaryTime$.next(0)
-    this.averageTime$.next(0)
+    this.intervalTimes$.next(new Array(this.intervalCount).fill(null).map(_ => new IntervalTime()))
+
+    // this.allValues$.next(new Array(this.intervalCount).fill(0))
+    // this.currentIntervalIndex$.next(-1)
+    // this.summaryTime$.next(0)
+    // this.averageTime$.next(0)
     this.currentStatus$.next(TimerStatus.NOT_LAUNCHED)
   }
 
@@ -105,7 +148,7 @@ export class TimerService implements Timer, OnDestroy {
 
     allValues[currentIntervalIndex]++
 
-    this.allValues$.next(allValues)
+    this.allValues$.next(allValues) // TODO remove
     this.summaryTime$.next(
       allValues.reduce((partialSum, a) => partialSum + a, 0)
     )
