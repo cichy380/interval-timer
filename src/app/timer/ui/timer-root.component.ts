@@ -1,108 +1,83 @@
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MatButtonModule } from '@angular/material/button'
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { lastValueFrom, Observable, take } from 'rxjs';
+import { Observable } from 'rxjs';
 import { FormatTimePipe } from '../../shared/format-time.pipe'
-import { TimerSoundService } from './timer-sound.service';
-import { BreakService } from '../domain/break.service';
+import { BellSoundService } from '../domain/bell-sound.service';
 import { TimerService } from '../domain/timer.service';
 import { TimerStatus } from '../api/timer-status'
-import { TimeValue } from '../api/time-value';
-import { TimerSound } from '../api/timer-sound';
-import { BreakTime } from '../api/break-time';
+import { BellSound } from '../api/bell-sound';
 import { Timer } from '../api/timer';
+import { TimerInterval, TimerIntervalStatus } from '../api/timer-interval';
+import { CountUpComponent } from './count-up/count-up.component';
+import { CountDownComponent } from './count-down/count-down.component';
+import { TimerSummaryComponent } from './timer-summary/timer-summary.component';
+import { TimerAverageComponent } from './timer-average/timer-average.component';
 
 
 @Component({
   selector: 'app-timer',
   standalone: true,
-  imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule],
+  imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule, CountUpComponent, CountDownComponent, TimerSummaryComponent, TimerAverageComponent],
   providers: [
     { provide: Timer, useClass: TimerService },
-    { provide: BreakTime, useClass: BreakService },
-    { provide: TimerSound, useClass: TimerSoundService },
+    { provide: BellSound, useClass: BellSoundService },
   ],
   templateUrl: './timer-root.component.html',
   styleUrl: './timer-root.component.css',
 })
-export class TimerRootComponent implements OnInit, OnDestroy {
+export class TimerRootComponent implements OnInit {
 
-  public timerValues$!: Observable<TimeValue[]>
-  public currentIntervalValue$!: Observable<TimeValue>
-  public currentIntervalIndex$!: Observable<number>
-  public summaryTime$!: Observable<TimeValue>
-  public averageTime$!: Observable<TimeValue>
-  public currentTimerStatus$!: Observable<TimerStatus>
-  public currentBreakValue$!: Observable<TimeValue>
+  public timerIntervals$!: Observable<TimerInterval[]>
+  public timerLastDoneInterval$!: Observable<TimerInterval | undefined>
+  public timerRunningInterval$!: Observable<TimerInterval | undefined>
+  public timerStatus$!: Observable<TimerStatus>
 
-  public intervalCount!: number
-  public breakLength!: number
-
-  public isBreak = false
+  public readonly intervalCount = 3 // TODO get this data from Storage
+  public readonly breakLength = 60 // TODO get this data from Storage
 
   public TimerStatus = TimerStatus
+  public TimerIntervalStatus = TimerIntervalStatus
 
   constructor(
     private readonly timer: Timer,
-    private readonly breakTime: BreakTime,
-    private readonly timerSound: TimerSound,
+    private readonly timerSound: BellSound,
   ) {
   }
 
   ngOnInit() {
-    this.intervalCount = 5 // TODO get this data from Storage
-    this.breakLength = 60 // TODO get this data from Storage
     this.timer.initializeTimer(this.intervalCount)
-    this.breakTime.initializeBreak(this.breakLength)
 
-    this.timerValues$ = this.timer.selectAllValues()
-    this.currentIntervalValue$ = this.timer.selectCurrentIntervalValue()
-    this.currentIntervalIndex$ = this.timer.selectCurrentIntervalIndex()
-    this.summaryTime$ = this.timer.selectSummaryTime()
-    this.averageTime$ = this.timer.selectAverageTime()
-    this.currentTimerStatus$ = this.timer.selectCurrentStatus()
-    this.currentBreakValue$ = this.breakTime.selectValue()
-
-
-    this.timer.selectIntervals().subscribe(intervals => {
-      console.log(intervals)
-    })
+    this.timerIntervals$ = this.timer.selectIntervals()
+    this.timerLastDoneInterval$ = this.timer.selectLastDoneInterval()
+    this.timerRunningInterval$ = this.timer.selectRunningInterval()
+    this.timerStatus$ = this.timer.selectTimerStatus()
   }
 
   async onStartTimerClick() {
     await this.timerSound.playBellDingSound()
-    this.timer.startFirstInterval()
+    this.timer.startTimer()
   }
 
-  async onNextIntervalClick() {
+  async onStopIntervalClick() {
     await this.timerSound.playBellDingSound()
-    this.timer.stopCurrentInterval()
-    this.breakTime.startBreak()
-    this.isBreak =
-    await lastValueFrom(this.breakTime.selectBreakEnded().pipe(take(1)))
+    this.timer.stopRunningInterval()
+  }
+
+  async onBreakEnd() {
     await this.timerSound.playBellDingSound()
     this.timer.startNextInterval()
   }
 
-  onStopTimerClick() {
-    this.timer.stopTimer()
+  async onSkipBreakClick() {
+    await this.timerSound.playBellDingSound()
+    this.timer.startNextInterval()
   }
 
-  onSkipBreakClick() {
-    this.breakTime.stopBreak()
-  }
-
-  onPauseTimerClick() {
-    this.timer.pauseTimer()
-  }
-
-  onContinueTimerClick() {
-    this.timer.continueTimer()
-  }
-
-  ngOnDestroy() {
+  getIntervalDuration(interval: TimerInterval) {
+    return Math.floor((interval.datetimeEnd! - interval.datetimeStart!) / 1000)
   }
 
 }

@@ -10,4 +10,5 @@ import { CommonModule } from '@angular/common';
   styleUrl: './history-root.component.css'
 })
 export class HistoryRootComponent {
+  // TODO: HistoryRootComponent
 }

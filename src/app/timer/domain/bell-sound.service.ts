@@ -1,13 +1,13 @@
 import { Injectable } from '@angular/core';
 import { SoundService } from '../../shared/sound.service';
-import { TimerSound } from '../api/timer-sound';
+import { BellSound } from '../api/bell-sound';
 
 
 const BELL_DING_FILENAME = 'copper-bell-ding.ogg'
 
 
 @Injectable()
-export class TimerSoundService implements TimerSound {
+export class BellSoundService implements BellSound {
 
   constructor(
     private readonly soundService: SoundService,

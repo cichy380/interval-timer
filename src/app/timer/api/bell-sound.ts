@@ -1,4 +1,4 @@
-export abstract class TimerSound {
+export abstract class BellSound {
 
   abstract playBellDingSound(): Promise<void>
 

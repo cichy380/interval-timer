@@ -1,110 +1,105 @@
-<div class="h-full p-5 pt-2.5 flex flex-col" *ngIf="currentTimerStatus$ | async as currentTimerStatus">
+<div class="h-full p-5 pt-2.5 flex flex-col" *ngIf="timerStatus$ | async as timerStatus">
   <main class="grow flex items-center justify-center flex-col">
-    <section
-      [class.opacity-100]="currentTimerStatus === TimerStatus.BREAK"
-      class="w-full px-4 py-3 bg-gray-100 rounded-md transition-opacity opacity-0">
-      <div class="flex items-center">
-        <span class="text-lg uppercase">Break</span>
-        <span class="ml-auto flex items-center">
-          <mat-icon
-            *ngIf="currentTimerStatus === TimerStatus.BREAK"
-            color="primary"
-            class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
-          <span class="text-2xl font-medium">{{ (currentBreakValue$ | async)! | formatTime }}</span>
-        </span>
-      </div>
+
+    <section class="w-full h-[56px]">
+      @if (timerStatus === TimerStatus.BREAK) {
+        <div class="px-4 py-3 bg-gray-100 rounded-md">
+          <div class="flex items-center">
+            <span class="text-lg uppercase">Break</span>
+            <span class="ml-auto flex items-center">
+              <mat-icon
+                color="primary"
+                class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
+              <app-count-down class="text-2xl font-medium" [duration]="breakLength" (end)="onBreakEnd()"/>
+            </span>
+          </div>
+        </div>
+      }
     </section>
 
     <section
       class="grow flex items-center justify-center flex-col">
       <div class="h-32">
-        <div *ngIf="currentTimerStatus === TimerStatus.NOT_LAUNCHED">
+        @if (timerStatus === TimerStatus.NOT_LAUNCHED) {
           <mat-icon class="!w-32 !h-32 text-9xl opacity-75 text-purple-800 material-icons-outlined">timer</mat-icon>
-        </div>
-        <div *ngIf="currentTimerStatus !== TimerStatus.NOT_LAUNCHED"
-             class="text-9xl font-light">{{ (currentIntervalIndex$ | async)! + 1 }}</div>
+        } @else if (timerStatus === TimerStatus.RUNNING) {
+          <div class="text-9xl font-light">{{ (timerRunningInterval$ | async)?.number || 0 }}</div>
+        } @else if (timerStatus === TimerStatus.BREAK || timerStatus === TimerStatus.STOPPED) {
+          <div class="text-9xl font-light">{{ (timerLastDoneInterval$ | async)?.number || 0 }}</div>
+        }
       </div>
-      <div class="text-3xl font-medium">{{ (currentIntervalValue$ | async)! | formatTime }}</div>
+      <div class="text-3xl font-medium">
+        @if (timerStatus === TimerStatus.RUNNING) {
+          <app-count-up/>
+        } @else if (timerStatus === TimerStatus.BREAK || timerStatus === TimerStatus.STOPPED) {
+          {{ getIntervalDuration((timerLastDoneInterval$ | async)!) | formatTime }}
+        } @else {
+          {{ 0 | formatTime }}
+        }
+      </div>
       <div class="text-gray-400 flex items-center justify-center">
         <mat-icon class="!w-6 !h-8 mr-1 text-2xl opacity-75 material-symbols-outlined">avg_time</mat-icon>
-        <span class="text-lg">{{ (averageTime$ | async)! | formatTime }}</span>
+        <app-timer-average [timeIntervals]="(timerIntervals$ | async)!" class="text-lg"/>
       </div>
     </section>
 
     <section class="w-full">
       <mat-list>
-        <ng-container *ngFor="let intervalItemTime of timerValues$ | async; index as idx">
+        @for (interval of timerIntervals$ | async; track interval.number) {
           <mat-list-item
             class="!rounded-md"
-            [class.transition-colors]="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
-            [class.!bg-gray-100]="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
-            [class.opacity-40]="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! > idx"
-            [class.opacity-20]="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! < idx">
+            [class.opacity-30]="interval.status === TimerIntervalStatus.PRISTINE"
+            [class.transition-colors]="interval.status === TimerIntervalStatus.RUNNING"
+            [class.!bg-gray-100]="interval.status === TimerIntervalStatus.RUNNING"
+            [class.opacity-60]="interval.status === TimerIntervalStatus.DONE">
             <span class="flex text-xl">
-              <span>{{ idx + 1 }}</span>
+              <span>{{ interval.number }}</span>
               <span class="ml-auto flex items-center">
-                <mat-icon *ngIf="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === idx"
-                          color="primary"
-                          class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
-                <span>{{ intervalItemTime | formatTime }}</span>
+                @if (interval.status === TimerIntervalStatus.PRISTINE) {
+                  {{ 0 | formatTime }}
+                } @else if (interval.status === TimerIntervalStatus.RUNNING) {
+                  <mat-icon
+                    color="primary"
+                    class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
+                  <app-count-up/>
+                } @else if (interval.status === TimerIntervalStatus.DONE) {
+                  {{ getIntervalDuration(interval) | formatTime }}
+                }
               </span>
             </span>
           </mat-list-item>
-        </ng-container>
+        }
         <mat-list-item>
           <span class="flex justify-end text-xl">
-              <span class="font-medium">{{ (summaryTime$ | async)! | formatTime }}</span>
-            </span>
+            <app-timer-summary [timeIntervals]="(timerIntervals$ | async)!" class="font-medium"/>
+          </span>
         </mat-list-item>
       </mat-list>
     </section>
   </main>
 
-  <footer class="mt-1 flex justify-center">
-    <button
-      *ngIf="currentTimerStatus === TimerStatus.NOT_LAUNCHED || currentTimerStatus === TimerStatus.STOPPED"
-      (click)="onStartTimerClick()"
-      mat-raised-button
-      color="primary">
-      Start timer
-    </button>
-    <button
-      *ngIf="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! < (intervalCount - 1)"
-      (click)="onNextIntervalClick()"
-      mat-raised-button
-      color="primary">
-      Next interval
-    </button>
-    <button
-      *ngIf="currentTimerStatus === TimerStatus.RUNNING && (currentIntervalIndex$ | async)! === (intervalCount - 1)"
-      (click)="onStopTimerClick()"
-      mat-raised-button
-      color="primary">
-      Stop interval
-    </button>
-
-    <button
-      *ngIf="currentTimerStatus === TimerStatus.BREAK"
-      (click)="onSkipBreakClick()"
-      mat-raised-button
-      color="warn">
-      Skip break
-    </button>
-
-<!--    <button-->
-<!--      *ngIf="currentTimerStatus === TimerStatus.RUNNING"-->
-<!--      (click)="onPauseTimerClick()"-->
-<!--      mat-raised-button-->
-<!--      color="primary">-->
-<!--      Pause-->
-<!--    </button>-->
-
-<!--    <button-->
-<!--      *ngIf="currentTimerStatus === TimerStatus.BREAK"-->
-<!--      (click)="onContinueTimerClick()"-->
-<!--      mat-raised-button-->
-<!--      color="primary">-->
-<!--      Continue-->
-<!--    </button>-->
+  <footer class="h-[36px] mt-1 flex justify-center">
+    @if (timerStatus === TimerStatus.NOT_LAUNCHED) {
+      <button
+        (click)="onStartTimerClick()"
+        mat-raised-button
+        color="primary">
+        Start timer
+      </button>
+    } @else if (timerStatus === TimerStatus.RUNNING) {
+      <button
+        (click)="onStopIntervalClick()"
+        mat-raised-button
+        color="primary">
+        Stop interval
+      </button>
+    } @else if (timerStatus === TimerStatus.BREAK) {
+      <button
+        (click)="onSkipBreakClick()"
+        mat-raised-button
+        color="warn">
+        Skip break
+      </button>
+    }
   </footer>
 </div>
