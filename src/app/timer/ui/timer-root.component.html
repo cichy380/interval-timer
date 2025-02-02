@@ -1,6 +1,7 @@
 <div class="h-full p-5 pt-2.5 flex flex-col" *ngIf="timerStatus$ | async as timerStatus">
   <main class="grow flex items-center justify-center flex-col">
 
+    <!-- TODO: timer-break-count-down component here -->
     <section class="w-full h-[56px]">
       @if (timerStatus === TimerStatus.BREAK) {
         <div class="px-4 py-3 bg-gray-100 rounded-md">
@@ -30,7 +31,7 @@
       </div>
       <div class="text-3xl font-medium">
         @if (timerStatus === TimerStatus.RUNNING) {
-          <app-count-up/>
+          <app-time-interval-count-up [timeInterval]="(timerRunningInterval$ | async)!" />
         } @else if (timerStatus === TimerStatus.BREAK || timerStatus === TimerStatus.STOPPED) {
           {{ getIntervalDuration((timerLastDoneInterval$ | async)!) | formatTime }}
         } @else {
@@ -39,7 +40,7 @@
       </div>
       <div class="text-gray-400 flex items-center justify-center">
         <mat-icon class="!w-6 !h-8 mr-1 text-2xl opacity-75 material-symbols-outlined">avg_time</mat-icon>
-        <app-timer-average [timeIntervals]="(timerIntervals$ | async)!" class="text-lg"/>
+        <app-timer-average [timeIntervals$]="timerIntervals$" class="text-lg"/>
       </div>
     </section>
 
@@ -61,7 +62,7 @@
                   <mat-icon
                     color="primary"
                     class="mr-2.5 animate-pulse-fast duration-1000 material-icons-outlined">timer</mat-icon>
-                  <app-count-up/>
+                  <app-time-interval-count-up [timeInterval]="interval" />
                 } @else if (interval.status === TimerIntervalStatus.DONE) {
                   {{ getIntervalDuration(interval) | formatTime }}
                 }
@@ -71,7 +72,7 @@
         }
         <mat-list-item>
           <span class="flex justify-end text-xl">
-            <app-timer-summary [timeIntervals]="(timerIntervals$ | async)!" class="font-medium"/>
+            <app-timer-summary [timeIntervals$]="timerIntervals$" class="font-medium"/>
           </span>
         </mat-list-item>
       </mat-list>

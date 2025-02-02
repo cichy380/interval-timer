@@ -1,39 +1,51 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { FormatTimePipe } from '../../../shared/format-time.pipe';
-import { TimerInterval, TimerIntervalStatus } from '../../api/timer-interval';
+import { Component, Input, OnInit } from '@angular/core'
+import { FormatTimePipe } from '../../../shared/format-time.pipe'
+import { TimerInterval, TimerIntervalStatus } from '../../api/timer-interval'
+import { iif, map, Observable, of, switchMap } from 'rxjs'
+import { SharedIntervalService } from '../../../shared/shared-interval.service'
+import { AsyncPipe } from '@angular/common'
 
 
 @Component({
   selector: 'app-timer-summary',
   standalone: true,
   imports: [
-    FormatTimePipe
+    FormatTimePipe,
+    AsyncPipe,
   ],
   templateUrl: './timer-summary.component.html',
-  styleUrl: './timer-summary.component.css'
+  styleUrl: './timer-summary.component.css',
 })
-export class TimerSummaryComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) timeIntervals!: TimerInterval[];
+export class TimerSummaryComponent implements OnInit {
+  @Input({ required: true }) timeIntervals$!: Observable<TimerInterval[]>
 
-  value = 0;
+  value$!: Observable<number>
 
-  private intervalId!: ReturnType<typeof setInterval>;
-
-  ngOnInit() {
-    // TODO: shared interval service
-    this.intervalId = setInterval(() => this.value = this.calculateTimeIntervalsSum(), 1000);
+  constructor(private readonly sharedIntervalService: SharedIntervalService) {
   }
 
-  private calculateTimeIntervalsSum() {
-    return this.timeIntervals.reduce((acc, interval) => {
+  ngOnInit() {
+    this.value$ = this.timeIntervals$.pipe(
+      map(timeIntervals => ({
+        timeIntervals,
+        runningTimeInterval: this.getRunningTimeInterval(timeIntervals),
+        doneTimeIntervalsSum: this.calculateDoneTimeIntervalsSum(timeIntervals),
+      })),
+      switchMap(({ timeIntervals, runningTimeInterval, doneTimeIntervalsSum }) => iif(
+        () => !!runningTimeInterval,
+        this.sharedIntervalService.oneSecond$.pipe(map(_ => doneTimeIntervalsSum + this.getRunningIntervalDuration(runningTimeInterval!))),
+        of(doneTimeIntervalsSum),
+      ))
+    )
+  }
+
+  private calculateDoneTimeIntervalsSum(timeIntervals: TimerInterval[]) {
+    return timeIntervals.reduce((acc, interval) => {
       if (interval.status === TimerIntervalStatus.DONE) {
-        return acc + this.getDoneIntervalDuration(interval);
+        return acc + this.getDoneIntervalDuration(interval)
       }
-      if (interval.status === TimerIntervalStatus.RUNNING) {
-        return acc + this.getRunningIntervalDuration(interval);
-      }
-      return acc;
-    }, 0);
+      return acc
+    }, 0)
   }
 
   private getDoneIntervalDuration(interval: TimerInterval) {
@@ -44,8 +56,8 @@ export class TimerSummaryComponent implements OnInit, OnDestroy {
     return Math.floor((Date.now() - interval.datetimeStart!) / 1000)
   }
 
-  ngOnDestroy() {
-    clearInterval(this.intervalId);
+  private getRunningTimeInterval(timeIntervals: TimerInterval[]) {
+    return timeIntervals.find(interval => interval.status === TimerIntervalStatus.RUNNING)
   }
 
 }

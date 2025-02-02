@@ -11,16 +11,16 @@ import { TimerStatus } from '../api/timer-status'
 import { BellSound } from '../api/bell-sound';
 import { Timer } from '../api/timer';
 import { TimerInterval, TimerIntervalStatus } from '../api/timer-interval';
-import { CountUpComponent } from './count-up/count-up.component';
 import { CountDownComponent } from './count-down/count-down.component';
 import { TimerSummaryComponent } from './timer-summary/timer-summary.component';
 import { TimerAverageComponent } from './timer-average/timer-average.component';
+import { TimeIntervalCountUpComponent } from './time-interval-count-up/time-interval-count-up.component';
 
 
 @Component({
   selector: 'app-timer',
   standalone: true,
-  imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule, CountUpComponent, CountDownComponent, TimerSummaryComponent, TimerAverageComponent],
+  imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule, CountDownComponent, TimerSummaryComponent, TimerAverageComponent, TimeIntervalCountUpComponent],
   providers: [
     { provide: Timer, useClass: TimerService },
     { provide: BellSound, useClass: BellSoundService },
