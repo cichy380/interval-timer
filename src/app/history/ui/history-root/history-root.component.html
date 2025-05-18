@@ -1,1 +1,38 @@
-<p>history-root works!</p>
+<div class="h-full p-5 pt-2.5">
+  <header class="mb-10 flex justify-between leading-none">
+    <h1 class="text-3xl font-light pt-1.5">History</h1>
+
+    <button mat-icon-button (click)="onClearAllClick()" aria-label="clear all">
+      <mat-icon class="text-red-600 material-icons-outlined">delete</mat-icon>
+    </button>
+  </header>
+
+  @for (week of workoutsGroupedByWeek; track week[0]) {
+    <article class="flex mb-4">
+      <span class="min-w-10 opacity-50 font-light">#{{ week[0] }}</span>
+      @for (workout of week[1]; track workout.date) {
+        <div class="mr-2 pr-2 border-r last:border-r-0 min-w-[30%]">
+          <h2>{{ workout.date |  date:'MMM d, EEE' }}</h2>
+          <p class="flex items-center">
+            <mat-icon
+              color="primary"
+              class="mr-1 material-icons-outlined">timer
+            </mat-icon>
+            <span class="pt-1">
+              {{ workout.activeWorkoutTime | formatTime }}
+              <span class="opacity-50 font-light">({{ workout.setCount }})</span>
+            </span>
+          </p>
+          <p class="flex items-center opacity-50">
+            <mat-icon class="mr-1 material-symbols-outlined">avg_time</mat-icon>
+            <span class="pt-1">
+            {{ (workout.activeWorkoutTime / workout.setCount) | floor | formatTime }}
+          </span>
+          </p>
+        </div>
+      }
+    </article>
+  } @empty {
+    <p class="text-xl font-light">No history yet</p>
+  }
+</div>

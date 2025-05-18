@@ -17,6 +17,7 @@ import { TimerInterval, TimerIntervalStatus } from '../../api/timer-interval'
   styleUrl: './timer-average.component.css',
 })
 export class TimerAverageComponent implements OnInit {
+  // TODO: TimerInterval[] instead of Observable<TimerInterval[]>
   @Input({ required: true }) timeIntervals$!: Observable<TimerInterval[]>
 
   value$!: Observable<number>

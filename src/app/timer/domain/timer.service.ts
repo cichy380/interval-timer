@@ -71,6 +71,7 @@ export class TimerService implements Timer {
   }
 
   private startInterval(index: number) {
+    // TODO: make copy by [...this.timerIntervals$.getValue()]
     const intervals = this.timerIntervals$.getValue()
     intervals[index].datetimeStart = Date.now()
     intervals[index].status = TimerIntervalStatus.RUNNING
@@ -78,6 +79,7 @@ export class TimerService implements Timer {
   }
 
   private stopInterval(index: number) {
+    // TODO: make copy by [...this.timerIntervals$.getValue()]
     const intervals = this.timerIntervals$.getValue()
     intervals[index].datetimeEnd = Date.now()
     intervals[index].status = TimerIntervalStatus.DONE

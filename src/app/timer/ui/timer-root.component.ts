@@ -1,9 +1,12 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, DestroyRef, inject, OnInit } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common'
 import { MatButtonModule } from '@angular/material/button'
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { Observable } from 'rxjs';
+import { filter, Observable, switchMap } from 'rxjs';
+import { HISTORY_CORE_PROVIDERS } from '../../history/history.core.provider';
+import { History } from '../../history/api/history';
 import { FormatTimePipe } from '../../shared/format-time.pipe'
 import { BellSoundService } from '../domain/bell-sound.service';
 import { TimerService } from '../domain/timer.service';
@@ -15,6 +18,7 @@ import { CountDownComponent } from './count-down/count-down.component';
 import { TimerSummaryComponent } from './timer-summary/timer-summary.component';
 import { TimerAverageComponent } from './timer-average/timer-average.component';
 import { TimeIntervalCountUpComponent } from './time-interval-count-up/time-interval-count-up.component';
+import { TimerIntervalUtils } from '../infrastructure/TimerIntervalUtils';
 
 
 @Component({
@@ -22,6 +26,7 @@ import { TimeIntervalCountUpComponent } from './time-interval-count-up/time-inte
   standalone: true,
   imports: [CommonModule, FormatTimePipe, MatButtonModule, MatListModule, MatIconModule, CountDownComponent, TimerSummaryComponent, TimerAverageComponent, TimeIntervalCountUpComponent],
   providers: [
+    ...HISTORY_CORE_PROVIDERS,
     { provide: Timer, useClass: TimerService },
     { provide: BellSound, useClass: BellSoundService },
   ],
@@ -41,9 +46,12 @@ export class TimerRootComponent implements OnInit {
   public TimerStatus = TimerStatus
   public TimerIntervalStatus = TimerIntervalStatus
 
+  private readonly destroyRef = inject(DestroyRef);
+
   constructor(
     private readonly timer: Timer,
     private readonly timerSound: BellSound,
+    private readonly history: History,
   ) {
   }
 
@@ -54,6 +62,8 @@ export class TimerRootComponent implements OnInit {
     this.timerLastDoneInterval$ = this.timer.selectLastDoneInterval()
     this.timerRunningInterval$ = this.timer.selectRunningInterval()
     this.timerStatus$ = this.timer.selectTimerStatus()
+
+    this.observeTimerEnding()
   }
 
   async onStartTimerClick() {
@@ -77,7 +87,21 @@ export class TimerRootComponent implements OnInit {
   }
 
   getIntervalDuration(interval: TimerInterval) {
-    return Math.floor((interval.datetimeEnd! - interval.datetimeStart!) / 1000)
+    return TimerIntervalUtils.getDoneTimeIntervalDuration(interval)
   }
 
+  private observeTimerEnding() {
+    this.timerStatus$
+      .pipe(
+        filter(timerStatus => timerStatus === TimerStatus.STOPPED),
+        switchMap(() => this.timerIntervals$),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(intervals => {
+        this.history.saveWorkoutTime(
+          this.intervalCount,
+          TimerIntervalUtils.calculateWorkoutTime(intervals),
+        )
+      })
+  }
 }
